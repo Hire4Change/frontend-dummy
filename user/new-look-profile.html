@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -46,7 +46,7 @@
   <script>
     async function fetchUserProfile() {
       try {
-        const username = localStorage.getItem('username'); // Retrieve username from storage
+        const username = localStorage.getItem('username');
         if (!username) {
           throw new Error('User not logged in');
         }
@@ -146,6 +146,285 @@
         const result = await response.json();
         if (response.ok) {
           alert('Work experience updated successfully!');
+        } else {
+          alert('Error updating work experience: ' + result.error);
+        }
+      } catch (error) {
+        console.error('Error submitting work experience:', error);
+      }
+    });
+  </script>
+</body>
+
+</html> -->
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    #profilePicture {
+      max-width: 200px;
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    .item {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>User Profile</h1>
+
+  <div class="section">
+    <img id="profilePicture" src="" alt="Profile Picture" width="200" />
+  </div>
+
+  <div class="section">
+    <p><strong>Username:</strong> <span id="username"></span></p>
+    <p><strong>Email:</strong> <span id="email"></span></p>
+    <p><strong>Phone Number:</strong> <span id="phoneNumber"></span></p>
+    <p><strong>Bio:</strong> <span id="bio"></span></p>
+    <p><strong>Skills:</strong> <span id="skills"></span></p>
+    <p><strong>Languages:</strong> <span id="languages"></span></p>
+  </div>
+
+  <div class="section">
+    <h2>Portfolio</h2>
+    <div id="portfolioItems"></div>
+  </div>
+
+  <div class="section">
+    <h2>Work Experience</h2>
+    <div id="workExperienceItems"></div>
+  </div>
+
+  <div class="section">
+    <h2>Reviews</h2>
+    <div id="reviews"></div>
+  </div>
+
+  <div class="section">
+    <h2>Completed Jobs</h2>
+    <div id="completedJobs"></div>
+  </div>
+
+  <form id="portfolioForm">
+    <h2>Update Portfolio</h2>
+    <input type="text" id="portfolioTitle" placeholder="Portfolio Title" required />
+    <input type="text" id="portfolioDescription" placeholder="Portfolio Description" required />
+    <input type="text" id="portfolioImages" placeholder="Portfolio Images (comma-separated URLs)" required />
+    <input type="text" id="portfolioLink" placeholder="Portfolio Link" required />
+    <button type="submit">Submit Portfolio</button>
+  </form>
+
+  <form id="workExperienceForm">
+    <h2>Update Work Experience</h2>
+    <input type="text" id="workTitle" placeholder="Work Title" required />
+    <input type="text" id="workCompany" placeholder="Company" required />
+    <input type="text" id="workLocation" placeholder="Location" required />
+    <input type="text" id="workFrom" placeholder="From (YYYY-MM-DD)" required />
+    <input type="text" id="workTo" placeholder="To (YYYY-MM-DD)" required />
+    <input type="text" id="workDescription" placeholder="Work Description" required />
+    <button type="submit">Submit Work Experience</button>
+  </form>
+
+  <script>
+    async function fetchUserProfile() {
+      try {
+        const username = localStorage.getItem('username');
+        if (!username) {
+          throw new Error('User not logged in');
+        }
+
+        const response = await fetch(`https://us-central1-hire4change.cloudfunctions.net/user/profile?username=${username}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const userData = await response.json();
+
+        // Set profile picture
+        document.getElementById('profilePicture').src = userData.profilePictureUrl;
+
+        // Set user details
+        document.getElementById('username').textContent = userData.username;
+        document.getElementById('email').textContent = userData.email;
+        document.getElementById('phoneNumber').textContent = userData.phoneNumber;
+        document.getElementById('bio').textContent = userData.bio;
+        document.getElementById('skills').textContent = userData.skills.join(', ');
+        document.getElementById('languages').textContent = userData.languages.join(', ');
+
+        // Display portfolio items
+        const portfolioItemsContainer = document.getElementById('portfolioItems');
+        if (userData.portfolioItems && userData.portfolioItems.length > 0) {
+          userData.portfolioItems.forEach(item => {
+            const portfolioItemDiv = document.createElement('div');
+            portfolioItemDiv.classList.add('item');
+            portfolioItemDiv.innerHTML = `
+              <h3>${item.title}</h3>
+              <p>${item.description}</p>
+              ${item.images ? `<img src="${item.images[0]}" alt="Portfolio Image" width="100" />` : ''}
+              ${item.link ? `<a href="${item.link}" target="_blank">View more</a>` : ''}
+            `;
+            portfolioItemsContainer.appendChild(portfolioItemDiv);
+          });
+        } else {
+          portfolioItemsContainer.innerHTML = '<p>No portfolio items available</p>';
+        }
+
+        // Display work experience
+        const workExperienceItemsContainer = document.getElementById('workExperienceItems');
+        if (userData.workExperience && userData.workExperience.length > 0) {
+          userData.workExperience.forEach(exp => {
+            const workItemDiv = document.createElement('div');
+            workItemDiv.classList.add('item');
+            workItemDiv.innerHTML = `
+              <h3>${exp.title}</h3>
+              <p><strong>Company:</strong> ${exp.company}</p>
+              <p><strong>Location:</strong> ${exp.location}</p>
+              <p><strong>From:</strong> ${new Date(exp.from).toLocaleDateString()}</p>
+              <p><strong>To:</strong> ${new Date(exp.to).toLocaleDateString()}</p>
+              <p>${exp.description}</p>
+            `;
+            workExperienceItemsContainer.appendChild(workItemDiv);
+          });
+        } else {
+          workExperienceItemsContainer.innerHTML = '<p>No work experience available</p>';
+        }
+
+        // Display reviews
+        const reviewsContainer = document.getElementById('reviews');
+        if (userData.reviews && userData.reviews.length > 0) {
+          userData.reviews.forEach(review => {
+            const reviewItemDiv = document.createElement('div');
+            reviewItemDiv.classList.add('item');
+            reviewItemDiv.innerHTML = `
+              <p><strong>${review.reviewerName}:</strong> ${review.comment}</p>
+              <p><strong>Rating:</strong> ${review.rating.toFixed(1)}</p>
+            `;
+            reviewsContainer.appendChild(reviewItemDiv);
+          });
+        } else {
+          reviewsContainer.innerHTML = '<p>No reviews available</p>';
+        }
+
+        // Display completed jobs
+        const completedJobsContainer = document.getElementById('completedJobs');
+        if (userData.completedJobs && userData.completedJobs.length > 0) {
+          userData.completedJobs.forEach(job => {
+            const jobItemDiv = document.createElement('div');
+            jobItemDiv.classList.add('item');
+            jobItemDiv.innerHTML = `
+              <h3>${job.title}</h3>
+              <p><strong>Company:</strong> ${job.company}</p>
+              <p><strong>Description:</strong> ${job.description}</p>
+              <p><strong>Completion Date:</strong> ${new Date(job.completionDate).toLocaleDateString()}</p>
+              ${job.imageUrl ? `<img src="${job.imageUrl}" alt="Job Image" width="100" />` : ''}
+            `;
+            completedJobsContainer.appendChild(jobItemDiv);
+          });
+        } else {
+          completedJobsContainer.innerHTML = '<p>No completed jobs available</p>';
+        }
+
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    }
+
+    window.onload = fetchUserProfile;
+
+    document.getElementById('portfolioForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const username = localStorage.getItem('username'); // Retrieve username from storage
+      if (!username) {
+        alert('User not logged in');
+        return;
+      }
+
+      const portfolioData = {
+        username: username, // Pass username instead of userId
+        title: document.getElementById('portfolioTitle').value,
+        description: document.getElementById('portfolioDescription').value,
+        images: document.getElementById('portfolioImages').value.split(',').map(img => img.trim()),
+        link: document.getElementById('portfolioLink').value,
+      };
+
+      try {
+        const response = await fetch('https://us-central1-hire4change.cloudfunctions.net/user/add-portfolio', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(portfolioData)
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+          alert('Portfolio updated successfully!');
+          fetchUserProfile(); // Refresh profile to show updated portfolio
+        } else {
+          alert('Error updating portfolio: ' + result.error);
+        }
+      } catch (error) {
+        console.error('Error submitting portfolio:', error);
+      }
+    });
+
+    document.getElementById('workExperienceForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const username = localStorage.getItem('username'); // Retrieve username from storage
+      if (!username) {
+        alert('User not logged in');
+        return;
+      }
+
+      const workData = {
+        username: username, // Pass username instead of userId
+        title: document.getElementById('workTitle').value,
+        company: document.getElementById('workCompany').value,
+        location: document.getElementById('workLocation').value,
+        from: document.getElementById('workFrom').value,
+        to: document.getElementById('workTo').value,
+        description: document.getElementById('workDescription').value,
+      };
+
+      try {
+        const response = await fetch('https://us-central1-hire4change.cloudfunctions.net/user/add-work-experience', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(workData)
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+          alert('Work experience updated successfully!');
+          fetchUserProfile(); // Refresh profile to show updated work experience
         } else {
           alert('Error updating work experience: ' + result.error);
         }
