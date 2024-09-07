@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hire4Change User Search</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    input,
+    select,
+    button {
+      margin: 5px 0;
+      padding: 5px;
+    }
+
+    #results {
+      margin-top: 20px;
+    }
+
+    .user-card {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+    }
+
+    #warningMessage {
+      display: none;
+      color: red;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Hire4Change User Search</h1>
+  <input type="text" id="searchQuery" placeholder="Search users...">
+  <button onclick="searchUsers()">Search</button>
+
+  <h2>Filters</h2>
+  <input type="text" id="city" placeholder="City">
+  <input type="number" id="minRating" placeholder="Min Rating" min="0" max="5" step="0.1">
+  <input type="text" id="skills" placeholder="Skills (comma-separated)">
+
+  <h2>Sort</h2>
+  <select id="sortBy">
+    <option value="ratings.asFreelancer">Freelancer Rating</option>
+    <option value="ratings.asEmployer">Employer Rating</option>
+    <option value="username">Username</option>
+  </select>
+  <select id="sortOrder">
+    <option value="desc">Descending</option>
+    <option value="asc">Ascending</option>
+  </select>
+
+  <div id="warningMessage"></div>
+  <div id="results"></div>
+
+  <script>
+    const baseUrl = "https://us-central1-hire4change.cloudfunctions.net/user";
+
+    async function searchUsers() {
+      const query = document.getElementById('searchQuery').value.trim();
+      const city = document.getElementById('city').value.trim();
+      const minRating = document.getElementById('minRating').value.trim();
+      const skills = document.getElementById('skills').value.trim();
+      const sortBy = document.getElementById('sortBy').value;
+      const sortOrder = document.getElementById('sortOrder').value;
+
+      const warningMessage = document.getElementById('warningMessage');
+      warningMessage.style.display = 'none';
+
+      if (!query && !city && !minRating && !skills) {
+        warningMessage.textContent = 'Please enter a search query or apply filters.';
+        warningMessage.style.display = 'block';
+        return;
+      }
+
+      const data = {
+        query: query,
+        filters: {}
+      };
+
+      if (city) data.filters.city = city;
+      if (minRating) data.filters.min_rating = Number(minRating);
+      if (skills) data.filters.skills = skills;
+
+      data.sort_by = sortBy;
+      data.sort_order = sortOrder;
+
+      await fetchUsers(data);
+    }
+
+    async function fetchUsers(data) {
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = 'Searching...';
+
+      try {
+        const response = await fetch(`${baseUrl}/search_users`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const responseData = await response.json();
+        console.log(responseData)
+        displayResults(responseData.results);
+      } catch (error) {
+        console.error('Error:', error);
+        resultsDiv.innerHTML = 'Failed to fetch results. Please try again.';
+      }
+    }
+
+    function displayResults(results) {
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = '';
+      if (results.length === 0) {
+        resultsDiv.innerHTML = '<p>No results found.</p>';
+        return;
+      }
+      results.forEach(user => {
+        const bio = user.bio || 'No bio available';
+        const skills = user.skills ? user.skills.join(', ') : 'No skills listed';
+        const city = user.location?.city || 'Unknown';
+        const state = user.location?.state || 'Unknown';
+        const freelancerRating = user.ratings?.asFreelancer ? user.ratings.asFreelancer.toFixed(1) : 'N/A';
+        const employerRating = user.ratings?.asEmployer ? user.ratings.asEmployer.toFixed(1) : 'N/A';
+        const education = user.education
+          ? user.education.map(edu => `${edu.degree} in ${edu.fieldOfStudy} from ${edu.institution}`).join(', ')
+          : 'No education details';
+        const workExperience = user.workExperience
+          ? user.workExperience.map(exp => `${exp.title} at ${exp.company}`).join(', ')
+          : 'No work experience';
+
+        resultsDiv.innerHTML += `
+          <div class="user-card">
+            <h3>${user.username}</h3>
+            <p><strong>Bio:</strong> ${bio}</p>
+            <p><strong>Skills:</strong> ${skills}</p>
+            <p><strong>Location:</strong> ${city}, ${state}</p>
+            <p><strong>Freelancer Rating:</strong> ${freelancerRating}</p>
+            <p><strong>Employer Rating:</strong> ${employerRating}</p>
+            <p><strong>Education:</strong> ${education}</p>
+            <p><strong>Work Experience:</strong> ${workExperience}</p>
+          </div>
+        `;
+      });
+    }
+
+    // Initial message
+    document.getElementById('results').innerHTML = '<p>Enter a search query or apply filters to find users.</p>';
+  </script>
+</body>
+
+</html>
