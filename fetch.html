@@ -102,15 +102,6 @@
             background-color: #27ae60;
         }
 
-        .save-button {
-            background-color: #3498db;
-            color: white;
-        }
-
-        .save-button:hover {
-            background-color: #2980b9;
-        }
-
         .applicants-section {
             margin-top: 30px;
         }
@@ -193,7 +184,6 @@
         <div id="error"></div>
         <div class="button-container">
             <button id="applyButton" class="button apply-button">Apply</button>
-            <button id="saveButton" class="button save-button">Save</button>
         </div>
     </div>
 
@@ -318,31 +308,7 @@
             }
         }
 
-        async function saveJob(jobId) {
-            try {
-                const response = await fetch(`${baseUrl}/save-job`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        userId: userId,
-                        jobId: jobId
-                    }),
-                });
 
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error || 'Failed to save the job');
-                }
-
-                showModal(data.message || 'Job saved successfully!');
-            } catch (error) {
-                console.error('Error saving job:', error);
-                showModal(error.message);
-            }
-        }
 
         function showModal(message) {
             const modal = document.getElementById('modal');
@@ -364,7 +330,6 @@
                         displayJobDetails(jobDetails);
 
                         document.getElementById('applyButton').addEventListener('click', () => applyForJob(jobId));
-                        document.getElementById('saveButton').addEventListener('click', () => saveJob(jobId));
                     }
                 });
             } else {
