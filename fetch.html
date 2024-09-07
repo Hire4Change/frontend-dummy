@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .job-detail {
+            margin-bottom: 15px;
+        }
+        .job-detail strong {
+            display: inline-block;
+            width: 150px;
+            color: #555;
+        }
+        #imageContainer img {
+            max-width: 200px;
+            margin: 10px;
+            border-radius: 4px;
+        }
+        #error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Job Details</h1>
+        <div id="jobDetails"></div>
+        <div id="imageContainer"></div>
+        <div id="error"></div>
+    </div>
+
+<script>
+const baseUrl = "https://us-central1-hire4change.cloudfunctions.net/database"; 
+
+function getJobIdFromUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('id');
+}
+
+async function fetchJobDetails(jobId) {
+    try {
+        const response = await fetch(`${baseUrl}/fetch-job/${jobId}`);
+        if (!response.ok) {
+            throw new Error('Job not found');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching job details:', error);
+        document.getElementById('error').textContent = error.message;
+    }
+}
+
+function displayJobDetails(job) {
+    const jobDetailsDiv = document.getElementById('jobDetails');
+    const imageContainer = document.getElementById('imageContainer');
+
+    // Display text details
+    jobDetailsDiv.innerHTML = `
+        <div class="job-detail"><strong>Title:</strong> ${job.title}</div>
+        <div class="job-detail"><strong>Status:</strong> ${job.status}</div>
+        <div class="job-detail"><strong>Type:</strong> ${job.type}</div>
+	<div class="job-detail"><string>Published By:</strong>${job.publishedBy}</div>
+        <div class="job-detail"><strong>From:</strong> ${new Date(job.fromDateTime).toLocaleString()}</div>
+        <div class="job-detail"><strong>To:</strong> ${new Date(job.toDateTime).toLocaleString()}</div>
+        <div class="job-detail"><strong>Estimated Duration:</strong> ${job.estimatedDuration}</div>
+        <div class="job-detail"><strong>Category:</strong> ${job.category}</div>
+        <div class="job-detail"><strong>Description:</strong> ${job.description}</div>
+        <div class="job-detail"><strong>Skills Required:</strong> ${job.skillsRequired.join(', ')}</div>
+        <div class="job-detail"><strong>Experience Level:</strong> ${job.experienceLevel}</div>
+        <div class="job-detail"><strong>Price Quote:</strong> ${job.priceQuote.currency}${job.priceQuote.amount} (${job.priceQuote.rateType})</div>
+        <div class="job-detail"><strong>Posted Date:</strong> ${new Date(job.postedDate).toLocaleString()}</div>
+        <div class="job-detail"><strong>Views:</strong> ${job.views}</div>
+        <div class="job-detail"><strong>Saved Posts:</strong> ${job.savedPosts}</div>
+    `;
+
+    // Display location if not remote
+    if (job.type !== 'remote' && job.location) {
+        jobDetailsDiv.innerHTML += `
+            <div class="job-detail"><strong>Location:</strong> ${job.location.address}, ${job.location.street}, ${job.location.city}, ${job.location.state}, ${job.location.country}, ${job.location.pincode}</div>
+        `;
+    }
+
+    // Display images
+    if (job.images && job.images.length > 0) {
+        job.images.forEach(imageUrl => {
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.alt = 'Job image';
+            imageContainer.appendChild(img);
+        });
+    }
+}
+
+async function init() {
+    const jobId = getJobIdFromUrl();
+    if (jobId) {
+        const jobDetails = await fetchJobDetails(jobId);
+        if (jobDetails) {
+            displayJobDetails(jobDetails);
+        }
+    } else {
+        document.getElementById('error').textContent = 'No job ID provided';
+    }
+}
+
+init();
+</script>
+</body>
+</html>

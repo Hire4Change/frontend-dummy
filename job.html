@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Job Listing</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            width: 100%;
+            max-width: 800px;
+        }
+
+        h1 {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        form {
+            display: grid;
+            gap: 20px;
+        }
+
+        label {
+            color: #fff;
+            font-weight: 300;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 16px;
+        }
+
+        input::placeholder, select::placeholder, textarea::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        select option {
+            background-color: #764ba2;
+            color: #fff;
+        }
+
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            border: none;
+            padding: 12px 20px;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+        }
+
+        #response {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .success {
+            background-color: rgba(39, 174, 96, 0.2);
+            color: #27ae60;
+        }
+
+        .error {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #imageContainer {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        #imageContainer img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        .image-upload {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Create Job Listing</h1>
+        <form id="jobListingForm">
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required>
+
+            <label for="fromDateTime">From Date and Time:</label>
+            <input type="datetime-local" id="fromDateTime" name="fromDateTime" required>
+
+            <label for="toDateTime">To Date and Time:</label>
+            <input type="datetime-local" id="toDateTime" name="toDateTime" required>
+
+
+            <label for="type">Type:</label>
+            <select id="type" name="type" required>
+                <option value="on-site">On-site</option>
+                <option value="remote">Remote</option>
+                <option value="flexible">Flexible</option>
+            </select>
+
+            <div id="locationFields">
+                <label for="address">Address:</label>
+                <input type="text" id="address" name="address">
+
+                <label for="street">Street:</label>
+                <input type="text" id="street" name="street">
+
+                <label for="city">City:</label>
+                <input type="text" id="city" name="city">
+
+                <label for="state">State:</label>
+                <select id="state" name="state">
+                    <option value="">Select State</option>
+                    <option value="Andhra Pradesh">Andhra Pradesh</option>
+                    <!-- ... (all 35 states and UTs listed) ... -->
+                </select>
+
+                <label for="country">Country:</label>
+                <input type="text" id="country" name="country" value="India" readonly>
+
+                <label for="pincode">Pincode:</label>
+                <input type="text" id="pincode" name="pincode">
+            </div>
+
+            <label for="keywords">Keywords (comma-separated):</label>
+            <input type="text" id="keywords" name="keywords" required>
+
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" rows="4" required></textarea>
+
+            <label for="amount">Price Quote Amount:</label>
+            <input type="number" id="amount" name="amount" step="0.01" required>
+
+            <label for="currency">Currency:</label>
+            <select id="currency" name="currency" required>
+                <option value="₹">INR (₹)</option>
+                <option value="$">USD ($)</option>
+                <option value="€">EUR (€)</option>
+                <option value="£">GBP (£)</option>
+            </select>
+
+            <label for="rateType">Rate Type:</label>
+            <select id="rateType" name="rateType" required>
+                <option value="hourly">Hourly</option>
+                <option value="fixed">Fixed</option>
+                <option value="daily">Daily</option>
+            </select>
+
+            <label for="category">Category:</label>
+            <select id="category" name="category" required>
+                <option value="">Select Category</option>
+                <option value="Domestic Services">Domestic Services</option>
+                <option value="Maintenance and Repair">Maintenance and Repair</option>
+                <option value="Construction and Labor">Construction and Labor</option>
+                <option value="Automotive">Automotive</option>
+                <option value="Beauty and Wellness">Beauty and Wellness</option>
+                <option value="Artisan and Crafts">Artisan and Crafts</option>
+                <option value="Technology and IT">Technology and IT</option>
+                <option value="Design and Creative">Design and Creative</option>
+                <option value="Writing and Content Creation">Writing and Content Creation</option>
+                <option value="Business and Finance">Business and Finance</option>
+                <option value="Legal Services">Legal Services</option>
+                <option value="Education and Tutoring">Education and Tutoring</option>
+                <option value="Healthcare and Medical">Healthcare and Medical</option>
+                <option value="Engineering and Architecture">Engineering and Architecture</option>
+                <option value="Marketing and Advertising">Marketing and Advertising</option>
+                <option value="Event Planning and Management">Event Planning and Management</option>
+                <option value="Agriculture and Farming">Agriculture and Farming</option>
+                <option value="Transportation and Logistics">Transportation and Logistics</option>
+                <option value="Customer Service">Customer Service</option>
+                <option value="Entertainment and Performance">Entertainment and Performance</option>
+                <option value="other">Other</option>
+            </select>
+            <input type="text" id="otherCategory" name="otherCategory" placeholder="Specify other category" class="hidden">
+
+            <label for="skillsRequired">Skills Required (comma-separated):</label>
+            <input type="text" id="skillsRequired" name="skillsRequired" required>
+
+            <label for="experienceLevel">Experience Level:</label>
+            <select id="experienceLevel" name="experienceLevel" required>
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="expert">Expert</option>
+            </select>
+
+            <div class="image-upload">
+                <label for="images">Upload Images:</label>
+                <input type="file" id="images" name="images" accept="image/*" multiple>
+                <div id="imageContainer"></div>
+            </div>
+
+            <button type="submit">Create Job Listing</button>
+        </form>
+        <div id="response"></div>
+    </div>
+</body>
+<script>
+const baseUrl = "https://us-central1-hire4change.cloudfunctions.net/database"; // Configure this later
+const form = document.getElementById('jobListingForm');
+const responseDiv = document.getElementById('response');
+const typeSelect = document.getElementById('type');
+const locationFields = document.getElementById('locationFields');
+const categorySelect = document.getElementById('category');
+const otherCategoryInput = document.getElementById('otherCategory');
+const imageInput = document.getElementById('images');
+const imageContainer = document.getElementById('imageContainer');
+
+// Define userID
+const userID = "";
+
+typeSelect.addEventListener('change', function() {
+    if (this.value === 'remote') {
+        locationFields.classList.add('hidden');
+    } else {
+        locationFields.classList.remove('hidden');
+    }
+});
+
+categorySelect.addEventListener('change', function() {
+    if (this.value === 'other') {
+        otherCategoryInput.classList.remove('hidden');
+    } else {
+        otherCategoryInput.classList.add('hidden');
+    }
+});
+
+imageInput.addEventListener('change', function(event) {
+    imageContainer.innerHTML = ''; // Clear previous previews
+    const files = event.target.files;
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.alt = 'Uploaded image';
+                imageContainer.appendChild(img);
+            }
+            reader.readAsDataURL(file);
+        } else {
+            console.warn('Skipped non-image file:', file.name);
+        }
+    }
+});
+
+function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = event => resolve(event.target.result.split(',')[1]);
+        reader.onerror = error => reject(error);
+        reader.readAsDataURL(file);
+    });
+}
+
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    // Process arrays and nested objects
+    data.keywords = data.keywords.split(',').map(k => k.trim());
+    data.skillsRequired = data.skillsRequired.split(',').map(s => s.trim());
+    
+    if (data.type !== 'remote') {
+        data.location = {
+            address: data.address,
+            street: data.street,
+            city: data.city,
+            state: data.state,
+            country: data.country,
+            pincode: data.pincode,
+            coordinates: {
+                type: "Point",
+                coordinates: [0, 0]
+            }
+        };
+    }
+
+    data.priceQuote = {
+        amount: parseFloat(data.amount),
+        currency: data.currency,
+        rateType: data.rateType
+    };
+
+    if (data.category === 'other') {
+        data.category = data.otherCategory;
+    }
+
+    // Process images
+    const imageFiles = imageInput.files;
+    data.images = [];
+    for (let i = 0; i < imageFiles.length; i++) {
+        const file = imageFiles[i];
+        if (file.type.startsWith('image/')) {
+            const base64Image = await readFileAsBase64(file);
+            data.images.push({ image: base64Image });
+        }
+    }
+
+    // Add postedBy field
+    data.postedBy = userID;
+
+    // Remove unnecessary fields
+    delete data.address;
+    delete data.street;
+    delete data.city;
+    delete data.state;
+    delete data.country;
+    delete data.pincode;
+    delete data.amount;
+    delete data.otherCategory;
+
+    try {
+        const response = await fetch(`${baseUrl}/create-job-listing`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            responseDiv.textContent = `${result.message} Job ID: ${result.job_id}`;
+            responseDiv.className = 'success';
+            // You might want to store the job_id or use it in some way
+            console.log('Created job ID:', result.job_id);
+            form.reset();
+            imageContainer.innerHTML = ''; // Clear image preview
+        } else {
+            responseDiv.textContent = result.error || 'An error occurred while submitting the form.';
+            responseDiv.className = 'error';
+        }
+    } catch (error) {
+        responseDiv.textContent = 'An error occurred while submitting the form.';
+        responseDiv.className = 'error';
+        console.error('Error:', error);
+    }
+});</script>
+</html>
