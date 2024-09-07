@@ -337,17 +337,45 @@
             modal.style.display = 'none';
         }
 
-        function init() {
-            const jobId = getJobIdFromUrl();
-            if (jobId) {
-                fetchJobDetails(jobId).then(jobDetails => {
-                    if (jobDetails) {
-                        displayJobDetails(jobDetails);
-                    }
-                });
-            } else {
-                document.getElementById('error').textContent = 'No job ID provided';
+    async function completeJob(jobId) {
+        try {
+            const response = await fetch(`${baseUrl}/complete-job`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    jobId: jobId
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to complete the job');
             }
+
+            showModal('Job marked as completed successfully!');
+        } catch (error) {
+            console.error('Error completing job:', error);
+            showModal(error.message);
+        }
+    }
+
+    function init() {
+        const jobId = getJobIdFromUrl();
+        if (jobId) {
+            fetchJobDetails(jobId).then(jobDetails => {
+                if (jobDetails) {
+                    displayJobDetails(jobDetails);
+
+                    const completeButton = document.getElementById('completeButton');
+                    completeButton.addEventListener('click', () => completeJob(jobId));
+                }
+            });
+        } else {
+            document.getElementById('error').textContent = 'No job ID provided';
+        }
 
             document.querySelector('.close').addEventListener('click', closeModal);
             document.getElementById('continueButton').addEventListener('click', () => {
@@ -369,8 +397,7 @@
 
         document.addEventListener('DOMContentLoaded', init);
 
-        // Make assignJob function globally accessible
-        window.assignJob = assignJob;
+
     })();
     </script>
 </body>
