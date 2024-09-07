@@ -249,7 +249,6 @@
                 <div class="job-detail"><strong>Price Quote:</strong> ${job.priceQuote.currency}${job.priceQuote.amount} (${job.priceQuote.rateType})</div>
                 <div class="job-detail"><strong>Posted Date:</strong> ${new Date(job.postedDate).toLocaleString()}</div>
                 <div class="job-detail"><strong>Views:</strong> ${job.views}</div>
-                <div class="job-detail"><strong>Saved Posts:</strong> ${job.savedPosts}</div>
             `;
 
             if (job.type !== 'remote' && job.location) {
