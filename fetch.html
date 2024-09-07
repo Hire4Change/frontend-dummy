@@ -5,40 +5,183 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Job Details</title>
     <style>
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             margin: 0;
             padding: 20px;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            animation: fadeIn 0.5s ease-out;
         }
+
         .container {
             max-width: 800px;
             margin: 0 auto;
             background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            animation: slideIn 0.5s ease-out;
         }
-        h1 {
-            color: #333;
+
+        h1, h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 0;
         }
+
         .job-detail {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            animation: slideIn 0.5s ease-out;
         }
+
         .job-detail strong {
-            display: inline-block;
-            width: 150px;
-            color: #555;
+            min-width: 150px;
+            color: #34495e;
+            font-weight: 600;
         }
+
+        #imageContainer {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
         #imageContainer img {
             max-width: 200px;
-            margin: 10px;
-            border-radius: 4px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
         }
-        #error {
-            color: red;
+
+        #imageContainer img:hover {
+            transform: scale(1.05);
+        }
+
+        .button-container {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+        }
+
+        .apply-button {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .apply-button:hover {
+            background-color: #27ae60;
+        }
+
+        .save-button {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .save-button:hover {
+            background-color: #2980b9;
+        }
+
+        .applicants-section {
+            margin-top: 30px;
+        }
+
+        .applicants-list {
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .applicant-link {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #ecf0f1;
+            color: #2c3e50;
+            text-decoration: none;
+            border-radius: 20px;
+            font-size: 14px;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        .applicant-link:hover {
+            background-color: #bdc3c7;
+            transform: translateY(-2px);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
             font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #2c3e50;
+            text-decoration: none;
+        }
+
+        #error {
+            color: #e74c3c;
+            font-weight: bold;
+            animation: fadeIn 0.3s ease-out;
         }
     </style>
 </head>
@@ -48,83 +191,202 @@
         <div id="jobDetails"></div>
         <div id="imageContainer"></div>
         <div id="error"></div>
+        <div class="button-container">
+            <button id="applyButton" class="button apply-button">Apply</button>
+            <button id="saveButton" class="button save-button">Save</button>
+        </div>
     </div>
 
-<script>
-const baseUrl = "https://us-central1-hire4change.cloudfunctions.net/database"; 
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p id="modalMessage"></p>
+            <button id="continueButton" class="button apply-button">Continue</button>
+        </div>
+    </div>
 
-function getJobIdFromUrl() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('id');
-}
+    <script>
+    (function() {
+        const baseUrl = "https://us-central1-hire4change.cloudfunctions.net/database"; 
+        const userId = "Joshua S Raju"; // This can be changed later
 
-async function fetchJobDetails(jobId) {
-    try {
-        const response = await fetch(`${baseUrl}/fetch-job/${jobId}`);
-        if (!response.ok) {
-            throw new Error('Job not found');
+        function getJobIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
         }
-        return await response.json();
-    } catch (error) {
-        console.error('Error fetching job details:', error);
-        document.getElementById('error').textContent = error.message;
-    }
-}
 
-function displayJobDetails(job) {
-    const jobDetailsDiv = document.getElementById('jobDetails');
-    const imageContainer = document.getElementById('imageContainer');
-
-    // Display text details
-    jobDetailsDiv.innerHTML = `
-        <div class="job-detail"><strong>Title:</strong> ${job.title}</div>
-        <div class="job-detail"><strong>Status:</strong> ${job.status}</div>
-        <div class="job-detail"><strong>Type:</strong> ${job.type}</div>
-	<div class="job-detail"><string>Published By:</strong>${job.publishedBy}</div>
-        <div class="job-detail"><strong>From:</strong> ${new Date(job.fromDateTime).toLocaleString()}</div>
-        <div class="job-detail"><strong>To:</strong> ${new Date(job.toDateTime).toLocaleString()}</div>
-        <div class="job-detail"><strong>Estimated Duration:</strong> ${job.estimatedDuration}</div>
-        <div class="job-detail"><strong>Category:</strong> ${job.category}</div>
-        <div class="job-detail"><strong>Description:</strong> ${job.description}</div>
-        <div class="job-detail"><strong>Skills Required:</strong> ${job.skillsRequired.join(', ')}</div>
-        <div class="job-detail"><strong>Experience Level:</strong> ${job.experienceLevel}</div>
-        <div class="job-detail"><strong>Price Quote:</strong> ${job.priceQuote.currency}${job.priceQuote.amount} (${job.priceQuote.rateType})</div>
-        <div class="job-detail"><strong>Posted Date:</strong> ${new Date(job.postedDate).toLocaleString()}</div>
-        <div class="job-detail"><strong>Views:</strong> ${job.views}</div>
-        <div class="job-detail"><strong>Saved Posts:</strong> ${job.savedPosts}</div>
-    `;
-
-    // Display location if not remote
-    if (job.type !== 'remote' && job.location) {
-        jobDetailsDiv.innerHTML += `
-            <div class="job-detail"><strong>Location:</strong> ${job.location.address}, ${job.location.street}, ${job.location.city}, ${job.location.state}, ${job.location.country}, ${job.location.pincode}</div>
-        `;
-    }
-
-    // Display images
-    if (job.images && job.images.length > 0) {
-        job.images.forEach(imageUrl => {
-            const img = document.createElement('img');
-            img.src = imageUrl;
-            img.alt = 'Job image';
-            imageContainer.appendChild(img);
-        });
-    }
-}
-
-async function init() {
-    const jobId = getJobIdFromUrl();
-    if (jobId) {
-        const jobDetails = await fetchJobDetails(jobId);
-        if (jobDetails) {
-            displayJobDetails(jobDetails);
+        async function fetchJobDetails(jobId) {
+            try {
+                const response = await fetch(`${baseUrl}/fetch-job/${jobId}`);
+                if (!response.ok) {
+                    throw new Error('Job not found');
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching job details:', error);
+                document.getElementById('error').textContent = error.message;
+            }
         }
-    } else {
-        document.getElementById('error').textContent = 'No job ID provided';
-    }
-}
 
-init();
-</script>
+        function displayJobDetails(job) {
+            const jobDetailsDiv = document.getElementById('jobDetails');
+            const imageContainer = document.getElementById('imageContainer');
+
+            // Display text details
+            jobDetailsDiv.innerHTML = `
+                <div class="job-detail"><strong>Title:</strong> ${job.title}</div>
+                <div class="job-detail"><strong>Status:</strong> ${job.status}</div>
+                <div class="job-detail"><strong>Type:</strong> ${job.type}</div>
+                <div class="job-detail"><strong>Posted By:</strong> ${job.postedBy}</div>
+                <div class="job-detail"><strong>From:</strong> ${new Date(job.fromDateTime).toLocaleString()}</div>
+                <div class="job-detail"><strong>To:</strong> ${new Date(job.toDateTime).toLocaleString()}</div>
+                <div class="job-detail"><strong>Estimated Duration:</strong> ${job.estimatedDuration}</div>
+                <div class="job-detail"><strong>Category:</strong> ${job.category}</div>
+                <div class="job-detail"><strong>Description:</strong> ${job.description}</div>
+                <div class="job-detail"><strong>Skills Required:</strong> ${job.skillsRequired.join(', ')}</div>
+                <div class="job-detail"><strong>Experience Level:</strong> ${job.experienceLevel}</div>
+                <div class="job-detail"><strong>Price Quote:</strong> ${job.priceQuote.currency}${job.priceQuote.amount} (${job.priceQuote.rateType})</div>
+                <div class="job-detail"><strong>Posted Date:</strong> ${new Date(job.postedDate).toLocaleString()}</div>
+                <div class="job-detail"><strong>Views:</strong> ${job.views}</div>
+            `;
+
+            // Display location if not remote
+            if (job.type !== 'remote' && job.location) {
+                jobDetailsDiv.innerHTML += `
+                    <div class="job-detail"><strong>Location:</strong> ${job.location.address}, ${job.location.street}, ${job.location.city}, ${job.location.state}, ${job.location.country}, ${job.location.pincode}</div>
+                `;
+            }
+
+            // Display applicants
+            jobDetailsDiv.innerHTML += `
+                <div class="applicants-section">
+                    <h2>Applicants</h2>
+                    <ul id="applicantsList" class="applicants-list"></ul>
+                </div>
+            `;
+
+            const applicantsList = document.getElementById('applicantsList');
+            if (job.applicants && job.applicants.length > 0) {
+                job.applicants.forEach(applicant => {
+                    const li = document.createElement('li');
+                    const link = document.createElement('a');
+                    link.href = '#'; // Replace with actual link to applicant profile
+                    link.textContent = applicant;
+                    link.className = 'applicant-link';
+                    li.appendChild(link);
+                    applicantsList.appendChild(li);
+                });
+            } else {
+                applicantsList.innerHTML = '<li>No applicants yet</li>';
+            }
+
+            // Display images
+            imageContainer.innerHTML = '';
+            if (job.images && job.images.length > 0) {
+                job.images.forEach(imageUrl => {
+                    const img = document.createElement('img');
+                    img.src = imageUrl;
+                    img.alt = 'Job image';
+                    imageContainer.appendChild(img);
+                });
+            }
+        }
+
+        async function applyForJob(jobId) {
+            try {
+                const response = await fetch(`${baseUrl}/apply-job`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        applicantUsername: userId,
+                        jobID: jobId
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to apply for the job');
+                }
+
+                showModal('You have successfully applied for this job!');
+            } catch (error) {
+                console.error('Error applying for job:', error);
+                showModal(error.message);
+            }
+        }
+
+        async function saveJob(jobId) {
+            try {
+                const response = await fetch(`${baseUrl}/save-job`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        userId: userId,
+                        jobId: jobId
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to save the job');
+                }
+
+                showModal(data.message || 'Job saved successfully!');
+            } catch (error) {
+                console.error('Error saving job:', error);
+                showModal(error.message);
+            }
+        }
+
+        function showModal(message) {
+            const modal = document.getElementById('modal');
+            const modalMessage = document.getElementById('modalMessage');
+            modalMessage.textContent = message;
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.style.display = 'none';
+        }
+
+        function init() {
+            const jobId = getJobIdFromUrl();
+            if (jobId) {
+                fetchJobDetails(jobId).then(jobDetails => {
+                    if (jobDetails) {
+                        displayJobDetails(jobDetails);
+
+                        document.getElementById('applyButton').addEventListener('click', () => applyForJob(jobId));
+                        document.getElementById('saveButton').addEventListener('click', () => saveJob(jobId));
+                    }
+                });
+            } else {
+                document.getElementById('error').textContent = 'No job ID provided';
+            }
+
+            document.querySelector('.close').addEventListener('click', closeModal);
+            document.getElementById('continueButton').addEventListener('click', () => {
+                closeModal();
+                location.reload();
+            });
+
+            window.addEventListener('click', (event) => {
+                const modal = document.getElementById('modal');
+                if (event.target === modal) {
+                    closeModal();
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    })();
+    </script>
 </body>
 </html>
