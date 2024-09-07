@@ -8,8 +8,8 @@
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
         body {
-            font-family: 'Josefin Sans', sans-serif;
-            background: linear-gradient(135deg, #FFC437 0%, #bd7d1d 100%);
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             margin: 0;
             padding: 20px;
             display: flex;
@@ -62,7 +62,7 @@
         }
 
         select option {
-            background-color:  #FF9900;
+            background-color: #764ba2;
             color: #fff;
         }
 
@@ -135,7 +135,8 @@
 
             <label for="toDateTime">To Date and Time:</label>
             <input type="datetime-local" id="toDateTime" name="toDateTime" required>
-
+		 
+	    <input type="hidden" id="publisher" name="publisher" value="">
 
             <label for="type">Type:</label>
             <select id="type" name="type" required>
@@ -239,150 +240,152 @@
         </form>
         <div id="response"></div>
     </div>
-</body>
 <script>
-const baseUrl = "https://us-central1-hire4change.cloudfunctions.net/database"; // Configure this later
-const form = document.getElementById('jobListingForm');
-const responseDiv = document.getElementById('response');
-const typeSelect = document.getElementById('type');
-const locationFields = document.getElementById('locationFields');
-const categorySelect = document.getElementById('category');
-const otherCategoryInput = document.getElementById('otherCategory');
-const imageInput = document.getElementById('images');
-const imageContainer = document.getElementById('imageContainer');
+const baseUrl = "https://us-central1-hire4change.cloudfunctions.net/database";
 
-// Define userID
-const userID = "";
-
-typeSelect.addEventListener('change', function() {
-    if (this.value === 'remote') {
-        locationFields.classList.add('hidden');
-    } else {
-        locationFields.classList.remove('hidden');
-    }
-});
-
-categorySelect.addEventListener('change', function() {
-    if (this.value === 'other') {
-        otherCategoryInput.classList.remove('hidden');
-    } else {
-        otherCategoryInput.classList.add('hidden');
-    }
-});
-
-imageInput.addEventListener('change', function(event) {
-    imageContainer.innerHTML = ''; // Clear previous previews
-    const files = event.target.files;
-    for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        if (file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.alt = 'Uploaded image';
-                imageContainer.appendChild(img);
-            }
-            reader.readAsDataURL(file);
-        } else {
-            console.warn('Skipped non-image file:', file.name);
-        }
-    }
-});
-
-function readFileAsBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = event => resolve(event.target.result.split(',')[1]);
-        reader.onerror = error => reject(error);
-        reader.readAsDataURL(file);
-    });
-}
-
-form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
-
-    // Process arrays and nested objects
-    data.keywords = data.keywords.split(',').map(k => k.trim());
-    data.skillsRequired = data.skillsRequired.split(',').map(s => s.trim());
+// Define userID (this should be dynamically set based on the logged-in user)
+const userID = "HarshAditya";
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('jobListingForm');
+    const responseDiv = document.getElementById('response');
+    const typeSelect = document.getElementById('type');
+    const locationFields = document.getElementById('locationFields');
+    const categorySelect = document.getElementById('category');
+    const otherCategoryInput = document.getElementById('otherCategory');
+    const imageInput = document.getElementById('images');
+    const imageContainer = document.getElementById('imageContainer');
     
-    if (data.type !== 'remote') {
-        data.location = {
-            address: data.address,
-            street: data.street,
-            city: data.city,
-            state: data.state,
-            country: data.country,
-            pincode: data.pincode,
-            coordinates: {
-                type: "Point",
-                coordinates: [0, 0]
-            }
-        };
-    }
+    // Set the publisher field value
+    document.getElementById('publisher').value = userID;
 
-    data.priceQuote = {
-        amount: parseFloat(data.amount),
-        currency: data.currency,
-        rateType: data.rateType
-    };
-
-    if (data.category === 'other') {
-        data.category = data.otherCategory;
-    }
-
-    // Process images
-    const imageFiles = imageInput.files;
-    data.images = [];
-    for (let i = 0; i < imageFiles.length; i++) {
-        const file = imageFiles[i];
-        if (file.type.startsWith('image/')) {
-            const base64Image = await readFileAsBase64(file);
-            data.images.push({ image: base64Image });
-        }
-    }
-
-    // Add postedBy field
-    data.postedBy = userID;
-
-    // Remove unnecessary fields
-    delete data.address;
-    delete data.street;
-    delete data.city;
-    delete data.state;
-    delete data.country;
-    delete data.pincode;
-    delete data.amount;
-    delete data.otherCategory;
-
-    try {
-        const response = await fetch(`${baseUrl}/create-job-listing`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-            responseDiv.textContent = `${result.message} Job ID: ${result.job_id}`;
-            responseDiv.className = 'success';
-            // You might want to store the job_id or use it in some way
-            console.log('Created job ID:', result.job_id);
-            form.reset();
-            imageContainer.innerHTML = ''; // Clear image preview
+    typeSelect.addEventListener('change', function() {
+        if (this.value === 'remote') {
+            locationFields.classList.add('hidden');
         } else {
-            responseDiv.textContent = result.error || 'An error occurred while submitting the form.';
-            responseDiv.className = 'error';
+            locationFields.classList.remove('hidden');
         }
-    } catch (error) {
-        responseDiv.textContent = 'An error occurred while submitting the form.';
-        responseDiv.className = 'error';
-        console.error('Error:', error);
+    });
+
+    categorySelect.addEventListener('change', function() {
+        if (this.value === 'other') {
+            otherCategoryInput.classList.remove('hidden');
+        } else {
+            otherCategoryInput.classList.add('hidden');
+        }
+    });
+
+    imageInput.addEventListener('change', function(event) {
+        imageContainer.innerHTML = ''; // Clear previous previews
+        const files = event.target.files;
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.alt = 'Uploaded image';
+                    imageContainer.appendChild(img);
+                }
+                reader.readAsDataURL(file);
+            } else {
+                console.warn('Skipped non-image file:', file.name);
+            }
+        }
+    });
+
+    function readFileAsBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = event => resolve(event.target.result.split(',')[1]);
+            reader.onerror = error => reject(error);
+            reader.readAsDataURL(file);
+        });
     }
-});</script>
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+
+        // Process arrays and nested objects
+        data.keywords = data.keywords.split(',').map(k => k.trim());
+        data.skillsRequired = data.skillsRequired.split(',').map(s => s.trim());
+        
+        if (data.type !== 'remote') {
+            data.location = {
+                address: data.address,
+                street: data.street,
+                city: data.city,
+                state: data.state,
+                country: data.country,
+                pincode: data.pincode,
+                coordinates: {
+                    type: "Point",
+                    coordinates: [0, 0]
+                }
+            };
+        }
+
+        data.priceQuote = {
+            amount: parseFloat(data.amount),
+            currency: data.currency,
+            rateType: data.rateType
+        };
+
+        if (data.category === 'other') {
+            data.category = data.otherCategory;
+        }
+
+        // Process images
+        const imageFiles = imageInput.files;
+        data.images = [];
+        for (let i = 0; i < imageFiles.length; i++) {
+            const file = imageFiles[i];
+            if (file.type.startsWith('image/')) {
+                const base64Image = await readFileAsBase64(file);
+                data.images.push({ image: base64Image });
+            }
+        }
+
+        // Remove unnecessary fields
+        delete data.address;
+        delete data.street;
+        delete data.city;
+        delete data.state;
+        delete data.country;
+        delete data.pincode;
+        delete data.amount;
+        delete data.otherCategory;
+
+        try {
+            const response = await fetch(`${baseUrl}/create-job-listing`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                responseDiv.textContent = `${result.message} Job ID: ${result.job_id}`;
+                responseDiv.className = 'success';
+                console.log('Created job ID:', result.job_id);
+                form.reset();
+                imageContainer.innerHTML = '';
+            } else {
+                responseDiv.textContent = result.error || 'An error occurred while submitting the form.';
+                responseDiv.className = 'error';
+            }
+        } catch (error) {
+            responseDiv.textContent = 'An error occurred while submitting the form.';
+            responseDiv.className = 'error';
+            console.error('Error:', error);
+        }
+    });
+});
+</script>
+</body>
 </html>
