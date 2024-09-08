@@ -1,0 +1,126 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #FF9900; /* G2 */
+}
+
+.App {
+  text-align: center;
+}
+
+.post {
+  height: fit-content;
+  width: 25rem;
+  margin: 2rem;
+  padding: 2rem;
+  border: 2px solid #FF9900;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.post-title {
+  display: flex;
+  font-family: Lato;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #063970; /* primary G1 */
+}
+
+.post-date {
+  color: #873e23;
+  align-items: center;
+  font-size: 1.25rem;
+  font-style: italic;
+  margin-bottom: 10px;
+}
+
+.price-quote {
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: #873e23; /* primary G1 */
+  margin-bottom: 10px;
+  display: block; /* Add this to make the PriceQuote visible */
+}
+
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background-color: #FFC437; /* primary G1 */
+  padding: 10px;
+  border-radius: 10px 10px 0 0;
+}
+
+.skill-button {
+  width: fit-content;
+  border: 2px solid #FF9900;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  margin-left: 1rem;
+  text-align: center;
+  white-space: nowrap;
+  box-sizing: border-box;
+  background-color: #ffffff; /* primary G1 */
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #1a115b;
+}
+
+.skill-button:hover {
+  background-color: #FFA07A; /* darker primary G1 */
+}
+
+.skills {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 20px;
+}
+
+.description {
+  text-align: center;
+  color: #1b2506;
+  font-family: Raleway;
+  font-size: 1.15rem;
+  margin: 1rem 0;
+}
+
+.view-job {
+  text-align: center;
+  margin: 1rem 0;
+} 
+
+.view-job-link {
+  color: #356bbc;
+  text-decoration: none;
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: fit-content;
+  padding: 20px;
+  background-color: #f7f7f7;
+}
+
+.scroll-component {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background-color: #f7f7f7;
+}
