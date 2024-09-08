@@ -124,3 +124,19 @@ body {
   padding: 20px;
   background-color: #f7f7f7;
 }
+
+.flex-container {
+  display: flex; /* Enable Flexbox */
+  flex-wrap: wrap; /* Allow items to wrap onto multiple lines */
+  gap: 10px; /* Space between items */
+  padding: 10px; /* Optional padding */
+  border: 1px solid #ccc; /* Optional border */
+}
+
+.flex-item {
+  flex: 1 1 200px; /* Grow and shrink, with a base width of 200px */
+  background-color: #f0f0f0; /* Background color for visibility */
+  padding: 20px; /* Padding inside the item */
+  box-sizing: border-box; /* Include padding and border in the item’s total width and height */
+  text-align: center; /* Center text inside items */
+}
