@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hire4Change Job Search</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        input, select, button { margin: 5px 0; padding: 5px; }
+        #results { margin-top: 20px; }
+        .job-card { border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        #warningMessage { display: none; color: red; }
+    </style>
+</head>
+<body>
+    <h1>Hire4Change Job Search</h1>
+    <input type="text" id="searchQuery" placeholder="Search jobs...">
+    <button onclick="searchJobs()">Search</button>
+    
+    <h2>Filters</h2>
+    <input type="text" id="city" placeholder="City">
+    <input type="number" id="minPrice" placeholder="Min Price">
+    <input type="number" id="maxPrice" placeholder="Max Price">
+    
+    <h2>Sort</h2>
+    <select id="sortBy">
+        <option value="postedDate">Posted Date</option>
+        <option value="priceQuote.amount">Price</option>
+        <option value="estimatedDuration">Duration</option>
+    </select>
+    <select id="sortOrder">
+        <option value="desc">Descending</option>
+        <option value="asc">Ascending</option>
+    </select>
+    
+    <div id="warningMessage"></div>
+    <div id="results"></div>
+
+    <script>
+        const baseUrl = "https://us-central1-hire4change.cloudfunctions.net/database";
+
+        async function searchJobs() {
+            const query = document.getElementById('searchQuery').value.trim();
+            const city = document.getElementById('city').value.trim();
+            const minPrice = document.getElementById('minPrice').value.trim();
+            const maxPrice = document.getElementById('maxPrice').value.trim();
+            const sortBy = document.getElementById('sortBy').value;
+            const sortOrder = document.getElementById('sortOrder').value;
+
+            const warningMessage = document.getElementById('warningMessage');
+            warningMessage.style.display = 'none';
+
+            if (!query) {
+                warningMessage.textContent = 'Please enter a search query.';
+                warningMessage.style.display = 'block';
+                return;
+            }
+
+            const data = {
+                query: query,
+                filters: {}
+            };
+
+            if (city) data.filters.city = city;
+            if (minPrice) data.filters.min_price = Number(minPrice);
+            if (maxPrice) data.filters.max_price = Number(maxPrice);
+
+            data.sort_by = sortBy;
+            data.sort_order = sortOrder;
+
+            await fetchJobs(data);
+        }
+
+        async function fetchJobs(data) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = 'Searching...';
+
+            try {
+                const response = await axios.post(`${baseUrl}/search-job-listing`, data);
+		try{
+                displayResults(response.data.results);
+		} catch(error){
+				console.log({"Error": error});
+		}
+            } catch (error) {
+                console.error('Error:', error);
+                resultsDiv.innerHTML = 'Failed to fetch results. Please try again.';
+            }
+        }
+	
+        function displayResults(results) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+            if (results.length === 0) {
+                resultsDiv.innerHTML = '<p>No results found.</p>';
+                return;
+            }
+            results.forEach(job => {
+                let locationHtml = '';
+                if (job.type === 'remote') {
+                    locationHtml = '<p><strong>Type:</strong> Remote</p>';
+                } else if (job.type === 'on-site' || job.type === 'flexible') {
+                    locationHtml = `
+                        <p><strong>Type:</strong> ${job.type}</p>
+                        <p><strong>Location:</strong> ${job.location ? `${job.location.city}, ${job.location.state}` : 'Location not specified'}</p>
+                    `;
+                } else {
+                    locationHtml = '<p><strong>Location:</strong> Not specified</p>';
+                }
+
+                resultsDiv.innerHTML += `
+                    <div class="job-card">
+			<h3><a href="fetch.html?id=${job._id}" target="_blank">${job.title}</a></h3>
+                        <p>${job.description}</p>
+                        <p><strong>Price:</strong> ${job.priceQuote.amount} ${job.priceQuote.currency}</p>
+                        ${locationHtml}
+                        <p><strong>Skills:</strong> ${job.skillsRequired.join(', ')}</p>
+                        <p><strong>Duration:</strong> ${job.estimatedDuration}</p>
+                        <p><strong>Posted:</strong> ${new Date(job.postedDate).toLocaleDateString()}</p>
+                    </div>
+                `;
+            });
+        }
+
+        // Initial message
+        document.getElementById('results').innerHTML = '<p>Enter a search query to find jobs.</p>';
+    </script>
+</body>
+</html>

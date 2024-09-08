@@ -5,22 +5,76 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>User Profile</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    #profilePicture {
+      max-width: 200px;
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    .item {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+  </style>
 </head>
 
 <body>
   <h1>User Profile</h1>
 
-  <div>
+  <div class="section">
     <img id="profilePicture" src="" alt="Profile Picture" width="200" />
   </div>
 
-  <div>
+  <div class="section">
     <p><strong>Username:</strong> <span id="username"></span></p>
     <p><strong>Email:</strong> <span id="email"></span></p>
     <p><strong>Phone Number:</strong> <span id="phoneNumber"></span></p>
     <p><strong>Bio:</strong> <span id="bio"></span></p>
+    <p><strong>Freelancer Rating:</strong> <span id="freelancerRating"></span></p>
+    <p><strong>Employer Rating:</strong> <span id="employerRating"></span></p>
     <p><strong>Skills:</strong> <span id="skills"></span></p>
     <p><strong>Languages:</strong> <span id="languages"></span></p>
+  </div>
+
+  <div class="section">
+    <h2>Portfolio</h2>
+    <div id="portfolioItems"></div>
+  </div>
+
+  <div class="section">
+    <h2>Work Experience</h2>
+    <div id="workExperienceItems"></div>
+  </div>
+
+  <div class="section">
+    <h2>Reviews</h2>
+    <div id="reviews"></div>
+  </div>
+
+  <div class="section">
+    <h2>Completed Jobs</h2>
+    <div id="completedJobs"></div>
+  </div>
+
+  <div class="section">
+    <h2>Posted Jobs</h2>
+    <div id="postedJobs"></div>
+  </div>
+
+  <div class="section">
+    <h2>Education</h2>
+    <div id="educationItems"></div>
   </div>
 
   <form id="portfolioForm">
@@ -46,7 +100,8 @@
   <script>
     async function fetchUserProfile() {
       try {
-        const username = localStorage.getItem('username'); // Retrieve username from storage
+        // const username = localStorage.getItem('username');
+        const username="gurdeepk_guru"
         if (!username) {
           throw new Error('User not logged in');
         }
@@ -68,8 +123,112 @@
         document.getElementById('email').textContent = userData.email;
         document.getElementById('phoneNumber').textContent = userData.phoneNumber;
         document.getElementById('bio').textContent = userData.bio;
+        document.getElementById('freelancerRating').textContent = userData.ratings?.asFreelancer ? userData.ratings.asFreelancer.toFixed(1) : 'N/A';
+        document.getElementById('employerRating').textContent = userData.ratings?.asEmployer ? userData.ratings.asEmployer.toFixed(1) : 'N/A';
         document.getElementById('skills').textContent = userData.skills.join(', ');
         document.getElementById('languages').textContent = userData.languages.join(', ');
+
+        // Display portfolio items
+        const portfolioItemsContainer = document.getElementById('portfolioItems');
+        if (userData.portfolioItems && userData.portfolioItems.length > 0) {
+          userData.portfolioItems.forEach(item => {
+            const portfolioItemDiv = document.createElement('div');
+            portfolioItemDiv.classList.add('item');
+            portfolioItemDiv.innerHTML = `
+              <h3>${item.title}</h3>
+              <p>${item.description}</p>
+              ${item.images ? `<img src="${item.images[0]}" alt="Portfolio Image" width="100" />` : ''}
+              ${item.link ? `<a href="${item.link}" target="_blank">View more</a>` : ''}
+            `;
+            portfolioItemsContainer.appendChild(portfolioItemDiv);
+          });
+        } else {
+          portfolioItemsContainer.innerHTML = '<p>No portfolio items available</p>';
+        }
+
+        // Display work experience
+        const workExperienceItemsContainer = document.getElementById('workExperienceItems');
+        if (userData.workExperience && userData.workExperience.length > 0) {
+          userData.workExperience.forEach(exp => {
+            const workItemDiv = document.createElement('div');
+            workItemDiv.classList.add('item');
+            workItemDiv.innerHTML = `
+              <h3>${exp.title}</h3>
+              <p><strong>Company:</strong> ${exp.company}</p>
+              <p><strong>Location:</strong> ${exp.location}</p>
+              <p><strong>From:</strong> ${new Date(exp.from).toLocaleDateString()}</p>
+              <p><strong>To:</strong> ${new Date(exp.to).toLocaleDateString()}</p>
+              <p>${exp.description}</p>
+            `;
+            workExperienceItemsContainer.appendChild(workItemDiv);
+          });
+        } else {
+          workExperienceItemsContainer.innerHTML = '<p>No work experience available</p>';
+        }
+
+        const educationItemsContainer = document.getElementById('educationItems');
+        if (userData.education && userData.education.length > 0) {
+          userData.education.forEach(edu => {
+            const eduItemDiv = document.createElement('div');
+            eduItemDiv.classList.add('item');
+            eduItemDiv.innerHTML = `
+              <h3>${edu.degree}</h3>
+              <p><strong>Institution:</strong> ${edu.institution}</p>
+              <p><strong>Degree:</strong> ${edu.degree}</p>
+              <p><strong>FieldOfStudy:</strong> ${edu.fieldOfStudy}</p>
+            `;
+            educationItemsContainer.appendChild(eduItemDiv);
+          });
+        } else {
+          educationItemsContainer.innerHTML = '<p>No education details available</p>';
+        }
+
+        // Display reviews
+        const reviewsContainer = document.getElementById('reviews');
+        if (userData.reviews && userData.reviews.length > 0) {
+          userData.reviews.forEach(review => {
+            const reviewItemDiv = document.createElement('div');
+            reviewItemDiv.classList.add('item');
+            reviewItemDiv.innerHTML = `
+              <p>${review.comment}</p>
+              <p><strong>Rating:</strong> ${review.rating.toFixed(1)}</p>
+            `;
+            reviewsContainer.appendChild(reviewItemDiv);
+          });
+        } else {
+          reviewsContainer.innerHTML = '<p>No reviews available</p>';
+        }
+
+        // Display completed jobs
+        const completedJobsContainer = document.getElementById('completedJobs');
+        if (userData.completedJobs && userData.completedJobs.length > 0) {
+          userData.completedJobs.forEach(job => {
+            const jobItemDiv = document.createElement('div');
+            jobItemDiv.classList.add('item');
+            jobItemDiv.innerHTML = `
+              <p><strong>Company:</strong> ${job.job}</p>
+              <p><strong>Role:</strong> ${job.role}</p>
+            `;
+            completedJobsContainer.appendChild(jobItemDiv);
+          });
+        } else {
+          completedJobsContainer.innerHTML = '<p>No completed jobs available</p>';
+        }
+        const postedJobsContainer = document.getElementById('postedJobs');
+        if (userData.postedJobs && userData.postedJobs.length > 0) {
+          userData.postedJobs.forEach(job => {
+            const jobItemDiv = document.createElement('div');
+            jobItemDiv.classList.add('item');
+            jobItemDiv.innerHTML = `
+              <p><strong>Job Title:</strong> ${job.title}</p>
+              <p><strong>Description:</strong> ${job.description}</p>
+              <p><strong>Posted On:</strong> ${new Date(job.postedDate).toLocaleDateString()}</p>
+            `;
+            postedJobsContainer.appendChild(jobItemDiv);
+          });
+        } else {
+          postedJobsContainer.innerHTML = '<p>No posted jobs available</p>';
+        }
 
       } catch (error) {
         console.error('Error fetching user profile:', error);
@@ -107,6 +266,7 @@
         const result = await response.json();
         if (response.ok) {
           alert('Portfolio updated successfully!');
+          fetchUserProfile(); // Refresh profile to show updated portfolio
         } else {
           alert('Error updating portfolio: ' + result.error);
         }
@@ -146,6 +306,7 @@
         const result = await response.json();
         if (response.ok) {
           alert('Work experience updated successfully!');
+          fetchUserProfile(); // Refresh profile to show updated work experience
         } else {
           alert('Error updating work experience: ' + result.error);
         }
