@@ -182,12 +182,14 @@
 
 // export default App;
 
-import React, { useEffect, useState, useRef, memo } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef, memo } from 'react';
 import ReactDOM from 'react-dom';
 import './App.css'
+// import { useResponsive } from './ResponsiveContext'; // Import the custom hook
 
 // Constants
 const BASE_URL = `https://us-central1-hire4change.cloudfunctions.net/recommendation`;
+var size;
 
 // Reusable Components
 const PostTitle = memo(({ title }) => (
@@ -271,9 +273,9 @@ const Post = memo(({ data }) => {
 
 // Group Component
 const Group = memo(({ data }) => (
-  <div className="group">
+  <div className="group flex-container">
     {data.map((item, index) => (
-      <Post key={index} data={item} />
+      <Post key={index} data={item} className = "flex-item"/>
     ))}
   </div>
 ));
@@ -281,7 +283,7 @@ const Group = memo(({ data }) => (
 // Fetch Data Function
 const fetchData = async (i) => {
   try {
-    const response = await fetch(`${BASE_URL}/get_content?num=3&i=${i}`);
+    const response = await fetch(`${BASE_URL}/get_content?num=${3}&i=${i}`);
     return await response.json();
   } catch (error) {
     console.error('Error fetching data from API:', error);
@@ -291,10 +293,11 @@ const fetchData = async (i) => {
 
 const ScrollComponent = () => {
   const [data, setData] = useState([]);
-  const [postCount, setPostCount] = useState(0);
+  const [postCount, setPostCount] = useState(2);
   const containerRef = useRef(null);
 
   useEffect(() => {
+
     const handleScroll = async () => {
       if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight) {
         // Fetch data when user reaches the bottom
@@ -328,9 +331,45 @@ const ScrollComponent = () => {
   return <div ref={containerRef} style={{ display: 'flex', flexDirection: 'column' }}></div>;
 };
 
+const InitialComponent = () => {
+  const [groups, setGroups] = useState([]);
+
+  useEffect(() => {
+    // Fetch data on component mount
+    const fetchDataAsync = async () => {
+      try {
+        const data1 = await fetchData(0); // Pass initial count as 1
+        const data2 = await fetchData(1);
+        const data3 = await fetchData(2);
+
+        const groupData = [
+          { id: 1, items: data1 },
+          { id: 2, items: data2 },
+          { id: 3, items: data3}
+        ];
+
+        setGroups(groupData); // Update state with fetched data for both groups
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchDataAsync();
+  }, []);
+
+  return (
+    <div className="initial-component">
+      {groups.map((group) => (
+          <Group data={group.items} />
+      ))}
+    </div>
+  );
+};
 
 // Main App Component
 function App() {
+  console.log("Size is " + size);
+
   const jsonData1 = {
     title: "Plumber",
     description: "Experienced in fixing leaks and installations...",
@@ -342,13 +381,14 @@ function App() {
 
   const data = [jsonData1, jsonData1, jsonData1];
 
+  // ResponsiveProvider();
+
   return (
-    <div style = {{display : 'flex', flexDirection : 'column'}}>
-      <Group data={data} />
-      <Group data={data} />
-      <Group data={data} />
-      <Group data={data} />
-      <ScrollComponent />
+    <div style = {{display : 'flex', flexDirection : 'column', 
+                  height : '100vh', width : '100vw'}}>
+      {/* <ResponsiveComponent/> */}
+      <div><InitialComponent /></div>
+      <div><ScrollComponent /></div>
     </div>
   );
 }
