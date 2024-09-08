@@ -1,0 +1,87 @@
+.App {
+  text-align: center;
+}
+
+/* styles.css */
+.post-title {
+  display: flex;
+  justify-content: center;
+}
+
+.post-date {
+  color: #6c757d;
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+.price-quote {
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.skill-button {
+  width: fit-content;
+  border: 2px solid black;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  margin-left: 1rem;
+  text-align: center;
+  white-space: nowrap;
+  box-sizing: border-box;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.skills {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.description {
+  text-align: center;
+  color: #888;
+  font-size: 0.875rem;
+  margin: 1rem 0;
+}
+
+.view-job {
+  text-align: center;
+  margin: 1rem 0;
+}
+
+.view-job-link {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: bold;
+}
+
+.post {
+  height: fit-content;
+  width: 25rem;
+  margin: 2rem;
+  padding: 2rem;
+  border: 2px solid black;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: fit-content;
+}
