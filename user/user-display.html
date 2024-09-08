@@ -1,0 +1,688 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    #profilePic {
+      max-width: 150px;
+      border-radius: 50%;
+    }
+
+    .user-details {
+      margin-top: 20px;
+    }
+
+    .portfolio-items {
+      margin-top: 20px;
+    }
+
+    .portfolio-item {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .portfolio-item img {
+      max-width: 100px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>User Profile</h1>
+  <img id="profilePic" src="" alt="Profile Picture">
+  <div class="user-details">
+    <p><strong>Username:</strong> <span id="username"></span></p>
+    <p><strong>Bio:</strong> <span id="bio"></span></p>
+    <p><strong>Skills:</strong> <span id="skills"></span></p>
+    <p><strong>Location:</strong> <span id="location"></span></p>
+    <p><strong>Freelancer Rating:</strong> <span id="freelancerRating"></span></p>
+    <p><strong>Employer Rating:</strong> <span id="employerRating"></span></p>
+    <p><strong>Education:</strong> <span id="education"></span></p>
+    <p><strong>Work Experience:</strong> <span id="workExperience"></span></p>
+  </div>
+
+  <h2>Portfolio</h2>
+  <div class="portfolio-items" id="portfolioItems"></div>
+
+  <script>
+    const baseUrl = "https://us-central1-hire4change.cloudfunctions.net/user";
+
+    async function fetchUserDetails(username) {
+      try {
+        const response = await fetch(`${baseUrl}/profilefull?username=${username}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const user = await response.json();
+        displayUserDetails(user);
+      } catch (error) {
+        console.error('Error fetching user details:', error);
+        document.body.innerHTML = '<p>Failed to load user details. Please try again later.</p>';
+      }
+    }
+
+    function displayUserDetails(user) {
+      document.getElementById('username').textContent = user.username;
+      document.getElementById('bio').textContent = user.bio || 'No bio available';
+      document.getElementById('skills').textContent = user.skills ? user.skills.join(', ') : 'No skills listed';
+      document.getElementById('location').textContent = `${user.location?.city || 'Unknown'}, ${user.location?.state || 'Unknown'}`;
+      document.getElementById('freelancerRating').textContent = user.ratings?.asFreelancer ? user.ratings.asFreelancer.toFixed(1) : 'N/A';
+      document.getElementById('employerRating').textContent = user.ratings?.asEmployer ? user.ratings.asEmployer.toFixed(1) : 'N/A';
+      document.getElementById('education').textContent = user.education
+        ? user.education.map(edu => `${edu.degree} in ${edu.fieldOfStudy} from ${edu.institution}`).join(', ')
+        : 'No education details';
+      document.getElementById('workExperience').textContent = user.workExperience
+        ? user.workExperience.map(exp => `${exp.title} at ${exp.company}`).join(', ')
+        : 'No work experience';
+
+      // Debugging: Log the profile picture URL
+      console.log('Profile Picture URL:', user.profilePictureUrl);
+
+      // Set profile picture
+      if (user.profilePictureUrl) {
+        const profilePic = document.getElementById('profilePic');
+        profilePic.src = user.profilePictureUrl;
+
+        // Check if the image loads successfully
+        profilePic.onload = () => console.log('Profile picture loaded successfully');
+        profilePic.onerror = () => {
+          console.error('Error loading profile picture');
+          profilePic.style.display = 'none';
+        };
+      } else {
+        document.getElementById('profilePic').style.display = 'none';
+      }
+
+      // Display portfolio items
+      const portfolioItemsContainer = document.getElementById('portfolioItems');
+      if (user.portfolioItems && user.portfolioItems.length > 0) {
+        user.portfolioItems.forEach(item => {
+          const portfolioItemDiv = document.createElement('div');
+          portfolioItemDiv.classList.add('portfolio-item');
+          portfolioItemDiv.innerHTML = `
+            <h3>${item.title}</h3>
+            <p>${item.description}</p>
+            ${item.imageUrl ? `<img src="${item.imageUrl}" alt="Portfolio Image">` : ''}
+            ${item.link ? `<a href="${item.link}" target="_blank">View more</a>` : ''}
+          `;
+          portfolioItemsContainer.appendChild(portfolioItemDiv);
+        });
+      } else {
+        portfolioItemsContainer.innerHTML = '<p>No portfolio items available</p>';
+      }
+    }
+
+    function getQueryParameter(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
+
+    const username = getQueryParameter('username');
+    if (username) {
+      fetchUserDetails(username);
+    } else {
+      document.body.innerHTML = '<p>Invalid user.</p>';
+    }
+  </script>
+</body>
+
+</html> -->
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    #profilePic {
+      max-width: 150px;
+      border-radius: 50%;
+    }
+
+    .user-details {
+      margin-top: 20px;
+    }
+
+    .portfolio-items {
+      margin-top: 20px;
+    }
+
+    .portfolio-item {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .portfolio-item img {
+      max-width: 100px;
+    }
+
+    .reviews {
+      margin-top: 20px;
+    }
+
+    .review {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>User Profile</h1>
+  <img id="profilePic" src="" alt="Profile Picture">
+  <div class="user-details">
+    <p><strong>Username:</strong> <span id="username"></span></p>
+    <p><strong>Bio:</strong> <span id="bio"></span></p>
+    <p><strong>Skills:</strong> <span id="skills"></span></p>
+    <p><strong>Location:</strong> <span id="location"></span></p>
+    <p><strong>Freelancer Rating:</strong> <span id="freelancerRating"></span></p>
+    <p><strong>Employer Rating:</strong> <span id="employerRating"></span></p>
+    <p><strong>Education:</strong> <span id="education"></span></p>
+    <p><strong>Work Experience:</strong> <span id="workExperience"></span></p>
+  </div>
+
+  <h2>Portfolio</h2>
+  <div class="portfolio-items" id="portfolioItems"></div>
+
+  <h2>Reviews</h2>
+  <div class="reviews" id="reviews"></div>
+
+  <script>
+    const baseUrl = "https://us-central1-hire4change.cloudfunctions.net/user";
+
+    async function fetchUserDetails(username) {
+      try {
+        const response = await fetch(`${baseUrl}/profilefull?username=${username}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const user = await response.json();
+        displayUserDetails(user);
+        fetchUserReviews(username);  // Fetch and display reviews
+      } catch (error) {
+        console.error('Error fetching user details:', error);
+        document.body.innerHTML = '<p>Failed to load user details. Please try again later.</p>';
+      }
+    }
+
+    async function fetchUserReviews(username) {
+      try {
+        const response = await fetch(`${baseUrl}/user/reviews?username=${username}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const reviews = await response.json();
+        displayUserReviews(reviews);
+      } catch (error) {
+        console.error('Error fetching user reviews:', error);
+        document.getElementById('reviews').innerHTML = '<p>Failed to load reviews. Please try again later.</p>';
+      }
+    }
+
+    function displayUserDetails(user) {
+      document.getElementById('username').textContent = user.username;
+      document.getElementById('bio').textContent = user.bio || 'No bio available';
+      document.getElementById('skills').textContent = user.skills ? user.skills.join(', ') : 'No skills listed';
+      document.getElementById('location').textContent = `${user.location?.city || 'Unknown'}, ${user.location?.state || 'Unknown'}`;
+      document.getElementById('freelancerRating').textContent = user.ratings?.asFreelancer ? user.ratings.asFreelancer.toFixed(1) : 'N/A';
+      document.getElementById('employerRating').textContent = user.ratings?.asEmployer ? user.ratings.asEmployer.toFixed(1) : 'N/A';
+      document.getElementById('education').textContent = user.education
+        ? user.education.map(edu => `${edu.degree} in ${edu.fieldOfStudy} from ${edu.institution}`).join(', ')
+        : 'No education details';
+      document.getElementById('workExperience').textContent = user.workExperience
+        ? user.workExperience.map(exp => `${exp.title} at ${exp.company}`).join(', ')
+        : 'No work experience';
+
+      // Debugging: Log the profile picture URL
+      console.log('Profile Picture URL:', user.profilePictureUrl);
+
+      // Set profile picture
+      if (user.profilePictureUrl) {
+        const profilePic = document.getElementById('profilePic');
+        profilePic.src = user.profilePictureUrl;
+
+        // Check if the image loads successfully
+        profilePic.onload = () => console.log('Profile picture loaded successfully');
+        profilePic.onerror = () => {
+          console.error('Error loading profile picture');
+          profilePic.style.display = 'none';
+        };
+      } else {
+        document.getElementById('profilePic').style.display = 'none';
+      }
+
+      // Display portfolio items
+      const portfolioItemsContainer = document.getElementById('portfolioItems');
+      if (user.portfolioItems && user.portfolioItems.length > 0) {
+        user.portfolioItems.forEach(item => {
+          const portfolioItemDiv = document.createElement('div');
+          portfolioItemDiv.classList.add('portfolio-item');
+          portfolioItemDiv.innerHTML = `
+            <h3>${item.title}</h3>
+            <p>${item.description}</p>
+            ${item.imageUrl ? `<img src="${item.imageUrl}" alt="Portfolio Image">` : ''}
+            ${item.link ? `<a href="${item.link}" target="_blank">View more</a>` : ''}
+          `;
+          portfolioItemsContainer.appendChild(portfolioItemDiv);
+        });
+      } else {
+        portfolioItemsContainer.innerHTML = '<p>No portfolio items available</p>';
+      }
+    }
+
+    async function fetchUserReviews(username) 
+    {
+        const reviewsUrl = `${baseUrl}/user/reviews?username=${username}`;
+        console.log('Fetching reviews from:', reviewsUrl);
+        try {
+          const response = await fetch(reviewsUrl);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const reviews = await response.json();
+          displayUserReviews(reviews);
+        } catch (error) {
+          console.error('Error fetching user reviews:', error);
+          document.getElementById('reviews').innerHTML = '<p>Failed to load reviews. Please try again later.</p>';
+        }
+      }
+
+
+    function getQueryParameter(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
+
+    const username = getQueryParameter('username');
+    if (username) {
+      fetchUserDetails(username);
+    } else {
+      document.body.innerHTML = '<p>Invalid user.</p>';
+    }
+  </script>
+</body>
+
+</html> -->
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    #profilePic {
+      max-width: 150px;
+      border-radius: 50%;
+    }
+
+    .user-details {
+      margin-top: 20px;
+    }
+
+    .portfolio-items {
+      margin-top: 20px;
+    }
+
+    .portfolio-item {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .portfolio-item img {
+      max-width: 100px;
+    }
+
+    .reviews {
+      margin-top: 20px;
+    }
+
+    .review-item {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .review-item p {
+      margin: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>User Profile</h1>
+  <img id="profilePic" src="" alt="Profile Picture">
+  <div class="user-details">
+    <p><strong>Username:</strong> <span id="username"></span></p>
+    <p><strong>Bio:</strong> <span id="bio"></span></p>
+    <p><strong>Skills:</strong> <span id="skills"></span></p>
+    <p><strong>Location:</strong> <span id="location"></span></p>
+    <p><strong>Freelancer Rating:</strong> <span id="freelancerRating"></span></p>
+    <p><strong>Employer Rating:</strong> <span id="employerRating"></span></p>
+    <p><strong>Education:</strong> <span id="education"></span></p>
+    <p><strong>Work Experience:</strong> <span id="workExperience"></span></p>
+  </div>
+
+  <h2>Portfolio</h2>
+  <div class="portfolio-items" id="portfolioItems"></div>
+
+  <h2>Reviews</h2>
+  <div class="reviews" id="reviews"></div>
+
+  <script>
+    const baseUrl = "https://us-central1-hire4change.cloudfunctions.net/user";
+
+    async function fetchUserDetails(username) {
+      try {
+        const response = await fetch(`${baseUrl}/profilefull?username=${username}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const user = await response.json();
+        displayUserDetails(user);
+      } catch (error) {
+        console.error('Error fetching user details:', error);
+        document.body.innerHTML = '<p>Failed to load user details. Please try again later.</p>';
+      }
+    }
+
+    function displayUserDetails(user) {
+      document.getElementById('username').textContent = user.username;
+      document.getElementById('bio').textContent = user.bio || 'No bio available';
+      document.getElementById('skills').textContent = user.skills ? user.skills.join(', ') : 'No skills listed';
+      document.getElementById('location').textContent = `${user.location?.city || 'Unknown'}, ${user.location?.state || 'Unknown'}`;
+      document.getElementById('freelancerRating').textContent = user.ratings?.asFreelancer ? user.ratings.asFreelancer.toFixed(1) : 'N/A';
+      document.getElementById('employerRating').textContent = user.ratings?.asEmployer ? user.ratings.asEmployer.toFixed(1) : 'N/A';
+      document.getElementById('education').textContent = user.education
+        ? user.education.map(edu => `${edu.degree} in ${edu.fieldOfStudy} from ${edu.institution}`).join(', ')
+        : 'No education details';
+      document.getElementById('workExperience').textContent = user.workExperience
+        ? user.workExperience.map(exp => `${exp.title} at ${exp.company}`).join(', ')
+        : 'No work experience';
+
+      // Debugging: Log the profile picture URL
+      console.log('Profile Picture URL:', user.profilePictureUrl);
+
+      // Set profile picture
+      if (user.profilePictureUrl) {
+        const profilePic = document.getElementById('profilePic');
+        profilePic.src = user.profilePictureUrl;
+
+        // Check if the image loads successfully
+        profilePic.onload = () => console.log('Profile picture loaded successfully');
+        profilePic.onerror = () => {
+          console.error('Error loading profile picture');
+          profilePic.style.display = 'none';
+        };
+      } else {
+        document.getElementById('profilePic').style.display = 'none';
+      }
+
+      // Display portfolio items
+      const portfolioItemsContainer = document.getElementById('portfolioItems');
+      if (user.portfolioItems && user.portfolioItems.length > 0) {
+        user.portfolioItems.forEach(item => {
+          const portfolioItemDiv = document.createElement('div');
+          portfolioItemDiv.classList.add('portfolio-item');
+          portfolioItemDiv.innerHTML = `
+            <h3>${item.title}</h3>
+            <p>${item.description}</p>
+            ${item.imageUrl ? `<img src="${item.imageUrl}" alt="Portfolio Image">` : ''}
+            ${item.link ? `<a href="${item.link}" target="_blank">View more</a>` : ''}
+          `;
+          portfolioItemsContainer.appendChild(portfolioItemDiv);
+        });
+      } else {
+        portfolioItemsContainer.innerHTML = '<p>No portfolio items available</p>';
+      }
+
+      // Display reviews
+      const reviewsContainer = document.getElementById('reviews');
+      if (user.reviews && user.reviews.length > 0) {
+        user.reviews.forEach(review => {
+          const reviewItemDiv = document.createElement('div');
+          reviewItemDiv.classList.add('review-item');
+          reviewItemDiv.innerHTML = `
+            <p>${review.comment}</p>
+            <p><strong>Rating:</strong> ${review.rating.toFixed(1)}</p>
+          `;
+          reviewsContainer.appendChild(reviewItemDiv);
+        });
+      } else {
+        reviewsContainer.innerHTML = '<p>No reviews available</p>';
+      }
+    }
+
+
+    function getQueryParameter(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
+
+    const username = getQueryParameter('username');
+    if (username) {
+      fetchUserDetails(username);
+    } else {
+      document.body.innerHTML = '<p>Invalid user.</p>';
+    }
+  </script>
+</body>
+
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    #profilePic {
+      max-width: 150px;
+      border-radius: 50%;
+    }
+
+    .user-details {
+      margin-top: 20px;
+    }
+
+    .portfolio-items,
+    .completed-jobs {
+      margin-top: 20px;
+    }
+
+    .portfolio-item,
+    .job-item,
+    .review-item {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .portfolio-item img,
+    .job-item img {
+      max-width: 100px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>User Profile</h1>
+  <img id="profilePic" src="" alt="Profile Picture">
+  <div class="user-details">
+    <p><strong>Username:</strong> <span id="username"></span></p>
+    <p><strong>Bio:</strong> <span id="bio"></span></p>
+    <p><strong>Skills:</strong> <span id="skills"></span></p>
+    <p><strong>Location:</strong> <span id="location"></span></p>
+    <p><strong>Freelancer Rating:</strong> <span id="freelancerRating"></span></p>
+    <p><strong>Employer Rating:</strong> <span id="employerRating"></span></p>
+    <p><strong>Education:</strong> <span id="education"></span></p>
+    <p><strong>Work Experience:</strong> <span id="workExperience"></span></p>
+  </div>
+
+  <h2>Portfolio</h2>
+  <div class="portfolio-items" id="portfolioItems"></div>
+
+  <h2>Reviews</h2>
+  <div class="reviews" id="reviews"></div>
+
+  <h2>Completed Jobs</h2>
+  <div class="completed-jobs" id="completedJobs"></div>
+
+  <script>
+    const baseUrl = "https://us-central1-hire4change.cloudfunctions.net/user";
+
+    async function fetchUserDetails(username) {
+      try {
+        const response = await fetch(`${baseUrl}/profilefull?username=${username}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const user = await response.json();
+        displayUserDetails(user);
+      } catch (error) {
+        console.error('Error fetching user details:', error);
+        document.body.innerHTML = '<p>Failed to load user details. Please try again later.</p>';
+      }
+    }
+
+    function displayUserDetails(user) {
+      document.getElementById('username').textContent = user.username;
+      document.getElementById('bio').textContent = user.bio || 'No bio available';
+      document.getElementById('skills').textContent = user.skills ? user.skills.join(', ') : 'No skills listed';
+      document.getElementById('location').textContent = `${user.location?.city || 'Unknown'}, ${user.location?.state || 'Unknown'}`;
+      document.getElementById('freelancerRating').textContent = user.ratings?.asFreelancer ? user.ratings.asFreelancer.toFixed(1) : 'N/A';
+      document.getElementById('employerRating').textContent = user.ratings?.asEmployer ? user.ratings.asEmployer.toFixed(1) : 'N/A';
+      document.getElementById('education').textContent = user.education
+        ? user.education.map(edu => `${edu.degree} in ${edu.fieldOfStudy} from ${edu.institution}`).join(', ')
+        : 'No education details';
+      document.getElementById('workExperience').textContent = user.workExperience
+        ? user.workExperience.map(exp => `${exp.title} at ${exp.company}`).join(', ')
+        : 'No work experience';
+
+      // Debugging: Log the profile picture URL
+      console.log('Profile Picture URL:', user.profilePictureUrl);
+
+      // Set profile picture
+      if (user.profilePictureUrl) {
+        const profilePic = document.getElementById('profilePic');
+        profilePic.src = user.profilePictureUrl;
+
+        // Check if the image loads successfully
+        profilePic.onload = () => console.log('Profile picture loaded successfully');
+        profilePic.onerror = () => {
+          console.error('Error loading profile picture');
+          profilePic.style.display = 'none';
+        };
+      } else {
+        document.getElementById('profilePic').style.display = 'none';
+      }
+
+      // Display portfolio items
+      const portfolioItemsContainer = document.getElementById('portfolioItems');
+      if (user.portfolioItems && user.portfolioItems.length > 0) {
+        user.portfolioItems.forEach(item => {
+          const portfolioItemDiv = document.createElement('div');
+          portfolioItemDiv.classList.add('portfolio-item');
+          portfolioItemDiv.innerHTML = `
+            <h3>${item.title}</h3>
+            <p>${item.description}</p>
+            ${item.imageUrl ? `<img src="${item.imageUrl}" alt="Portfolio Image">` : ''}
+            ${item.link ? `<a href="${item.link}" target="_blank">View more</a>` : ''}
+          `;
+          portfolioItemsContainer.appendChild(portfolioItemDiv);
+        });
+      } else {
+        portfolioItemsContainer.innerHTML = '<p>No portfolio items available</p>';
+      }
+
+      // Display reviews
+      const reviewsContainer = document.getElementById('reviews');
+      if (user.reviews && user.reviews.length > 0) {
+        user.reviews.forEach(review => {
+          const reviewItemDiv = document.createElement('div');
+          reviewItemDiv.classList.add('review-item');
+          reviewItemDiv.innerHTML = `
+            <p>${review.comment}</p>
+            <p><strong>Rating:</strong> ${review.rating.toFixed(1)}</p>
+          `;
+          reviewsContainer.appendChild(reviewItemDiv);
+        });
+      } else {
+        reviewsContainer.innerHTML = '<p>No reviews available</p>';
+      }
+
+      // Display completed jobs
+      const completedJobsContainer = document.getElementById('completedJobs');
+      if (user.completedJobs && user.completedJobs.length > 0) {
+        user.completedJobs.forEach(job => {
+          const jobItemDiv = document.createElement('div');
+          jobItemDiv.classList.add('job-item');
+          jobItemDiv.innerHTML = `
+            <p><strong>Company:</strong> ${job.job}</p>
+            <p><strong>Role:</strong> ${job.role}</p>
+          `;
+          completedJobsContainer.appendChild(jobItemDiv);
+        });
+      } else {
+        completedJobsContainer.innerHTML = '<p>No completed jobs available</p>';
+      }
+    }
+
+    function getQueryParameter(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
+
+    const username = getQueryParameter('username');
+    if (username) {
+      fetchUserDetails(username);
+    } else {
+      document.body.innerHTML = '<p>Invalid user.</p>';
+    }
+  </script>
+</body>
+
+</html>
