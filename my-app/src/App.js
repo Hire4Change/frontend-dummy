@@ -185,7 +185,6 @@
 import React, { createContext, useContext, useEffect, useState, useRef, memo } from 'react';
 import ReactDOM from 'react-dom';
 import './App.css'
-// import { useResponsive } from './ResponsiveContext'; // Import the custom hook
 
 // Constants
 const BASE_URL = `https://us-central1-hire4change.cloudfunctions.net/recommendation`;
@@ -381,12 +380,9 @@ function App() {
 
   const data = [jsonData1, jsonData1, jsonData1];
 
-  // ResponsiveProvider();
-
   return (
     <div style = {{display : 'flex', flexDirection : 'column', 
                   height : '100vh', width : '100vw'}}>
-      {/* <ResponsiveComponent/> */}
       <div><InitialComponent /></div>
       <div><ScrollComponent /></div>
     </div>
